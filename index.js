@@ -3,6 +3,8 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 require('dotenv').config();
 
+const Survey = require('./models/Survey');
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGO_URI;
@@ -21,6 +23,26 @@ mongoose.connect(MONGO_URI, {
 
 app.get('/', (req, res) => {
   res.send('Jyfa SurveyBot Backend is running!');
+});
+
+// Survey routes
+app.post('/api/surveys', async (req, res) => {
+  try {
+    const newSurvey = new Survey(req.body);
+    await newSurvey.save();
+    res.status(201).json({ message: 'Survey created successfully' });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+app.get('/api/surveys', async (req, res) => {
+  try {
+    const surveys = await Survey.find();
+    res.status(200).json(surveys);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
 app.listen(PORT, () => {
